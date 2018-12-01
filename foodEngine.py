@@ -1,7 +1,7 @@
 import operator
 import functools 
 import numpy as np
-alpha = 0.01
+alpha = 0.00000005
 iters = 1000
 
 
@@ -19,81 +19,49 @@ def mean(X):
 def variance(X,mean):
 	return sum((X-mean)**2)
 
-def gradientDescent(X,y,theta):
+def gradientDescent(X,y,theta):	
 	tempTheta=np.zeros(shape=theta.shape)
-	tempTheta[0]=  [(alpha/inputSampleSize)*sum(sum((((dotProduct(X,theta)-y) * X[:,0:1].reshape(inputSampleSize,nutrientCount)))))]*nutrientCount
-	tempTheta[1]=  [(alpha/inputSampleSize)*sum(sum((((dotProduct(X,theta)-y) * X[:,1:2].reshape(inputSampleSize,nutrientCount)))))]*nutrientCount
-	tempTheta[2]=  [(alpha/inputSampleSize)*sum(sum((((dotProduct(X,theta)-y) * X[:,2:3].reshape(inputSampleSize,nutrientCount)))))]*nutrientCount	
-	tempTheta[3]=  [(alpha/inputSampleSize)*sum(sum((((dotProduct(X,theta)-y) * X[:,3:4].reshape(inputSampleSize,nutrientCount)))))]*nutrientCount
-
-
-	theta[0]=theta[0]-tempTheta[0]
-	theta[1]=theta[1]-tempTheta[1]
-	theta[2]=theta[2]-tempTheta[2]
-	theta[3]=theta[3]-tempTheta[3]
-	print("alpha",alpha)
+	for i in range (0,theta.shape[0]):
+		tempTheta[i]=  [(alpha/inputSampleSize)*sum(sum((((dotProduct(X,theta)-y) * X[:,i:i+1].reshape(inputSampleSize,nutrientCount)))))]*nutrientCount
+	for i in range (0,theta.shape[0]):	
+		theta[i]=theta[i]-tempTheta[i]
+	#tempTheta[1]=  [(alpha/inputSampleSize)*sum(sum((((dotProduct(X,theta)-y) * X[:,1:2].reshape(inputSampleSize,nutrientCount)))))]*nutrientCount
+	#tempTheta[2]=  [(alpha/inputSampleSize)*sum(sum((((dotProduct(X,theta)-y) * X[:,2:3].reshape(inputSampleSize,nutrientCount)))))]*nutrientCount	
+	#tempTheta[3]=  [(alpha/inputSampleSize)*sum(sum((((dotProduct(X,theta)-y) * X[:,3:4].reshape(inputSampleSize,nutrientCount)))))]*nutrientCount
+	#theta[0]=theta[0]-tempTheta[0]
+	#theta[1]=theta[1]-tempTheta[1]
+	#theta[2]=theta[2]-tempTheta[2]
+	#theta[3]=theta[3]-tempTheta[3]
 
 	
-#inputSampleSize=1		# Number of samples
-#foodCount=3    			# no of food items(features) you are giving to find out the optimal
-#nutrientCount=4 		# how many nutrients you gonna find out	
-  									
-#theta= np.array([[i]*nutrientCount for i in np.random.rand(foodCount)])#original 
+def getXandY(inputFoodList, duplicateSampleCount):
+	dailyLimitList=[1200.0, 325.0, 300.0, 550.0, 2.0, 2500.0, 20.0, 2.0, 10.0, 400.0, 400.0, 25.0, 10.0, 350.0, 5.0, 16.0, 6.0, 1000.0, 3500.0, 56.0, 1.6, 55.0, 2400.0, 35.0, 500.0, 2.0, 60.0, 90.0, 900.0, 6.0, 2.0, 12.0, 120.0, 15.0, 30]
+	food_items=open("nutrient_data.txt").read().split('\n')
+	food_items=[food_item.split("^") for food_item in food_items]
+	food_dict={}
+	[food_dict.update({food_item[0]: food_item}) for food_item in food_items]
+	X=np.array([[[z*float(food_dict[x][y] )for y in range(4,39)] for x in inputFoodList] for z in range(1,duplicateSampleCount+1)])
+	y=np.array([[x*m for x in dailyLimitList] for m in range (1, duplicateSampleCount+1)])
+	return (X,y)
+	
+	
 
-#X=np.random.random_integers(10, size=(inputSampleSize,foodCount,nutrientCount))	#test
-#y=np.random.random_integers(10, size=(inputSampleSize,nutrientCount))			#test	 
-#theta= np.array([[1.0]*nutrientCount for i in range(0,foodCount)])			#test
-X=np.array([[[1,2,3],[2,3,1],[3,1,2],[1,3,2]],[[3,1,2],[1,2,3],[2,3,1],[1,3,2]]])
-y=np.array([[18, 23, 19],[15, 26, 19]])
-#theta=np.array([[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0],[1.0,1.0,1.0]])
+X,y=getXandY(["11741","15077","11234","11215","11365","09050","17243"],2)
 inputSampleSize=X.shape[0]		# Number of samples
 foodCount=X.shape[1]			# no of food items(features) you are giving to find out the optimal
 nutrientCount=X.shape[2] 		# how many nutrients you gonna find out	
-#theta= np.array([[1.0]*nutrientCount for i in range(0,foodCount)])
 theta= np.array([[i]*nutrientCount for i in np.random.rand(foodCount)])
+	 
+
+#X=np.array([[[1,2,3],[2,3,1],[3,1,2],[1,3,2]],[[3,1,2],[1,2,3],[2,3,1],[1,3,2]]])
+#y=np.array([[18, 23, 19],[15, 26, 19]])
+#theta= np.array([[i]*nutrientCount for i in np.random.rand(foodCount)])
+
 print (theta)
 
-for i in range(50000):
-	if i>100:
-		alpha=0.01
-	print("cost",computeCost(X, theta,y))
+for i in range(1000000):
+	if (i>70000):
+		alpha=0.00000009
+	print(str(i)+" cost",computeCost(X, theta,y))
 	gradientDescent(X,y,theta)
 print(theta)
-
-
-
-203^g^PROCNT^Protein^56
-204^g^FAT^Total_lipid_fat_^60
-205^g^CHOCDF^Carbohydrate_by_difference^325
-208^kcal^ENERC_KCAL^Energy^2500
-263^mg^THEBRN^Theobromine^500
-269^g^SUGAR^Sugars^35
-291^g^FIBTG^dietary_Fiber^30
-301^mg^CA^Calcium^1200
-303^mg^FE^Iron^25
-304^mg^MG^Magnesium^350
-305^mg^P^Phosphorus^1000
-306^mg^K^Potassium^3500
-307^mg^NA^Sodium^2400
-309^mg^ZN^Zinc^15
-312^mg^CU^Copper^2
-313^mcg^FLD^Fluoride^10
-315^mg^MN^Manganese^5
-317^mcg^SE^Selenium^55
-318^IU^VITA_IU^Vitamin_A^900
-323^mg^TOCPHA^Vitamin_E^12
-337^mcg^LYCPN^Lycopene^10
-401^mg^VITC^Vitamin Ctotal_ascorbic_acid^90
-404^mg^THIA^Thiamin^2
-405^mg^RIBF^Riboflavin^1.6
-406^mg^NIA^Niacin^16
-410^mg^PANTAC^Pantothenic_acid^6
-415^mg^VITB6A^Vitamin_B_6^2
-417^mcg^FOL^Folate^400
-418^mcg^VITB12^Vitamin_B_12^6
-421^mg^CHOLN^Choline^550
-430^mcg^VITK1^Vitamin_K^120
-431^mcg^FOLAC^Folic_acid^400
-601^mg^CHOLE^Cholesterol^300
-605^g^FATRN^Fatty_acids_trans^2
-606^g^FASAT^Fatty_acids_total_saturated^20
